@@ -1,3 +1,4 @@
+import Button from "./UI/Button.jsx";
 import { currencyFormatter } from "../util/formatting.js";
 
 // WE PASS IN MEAL AS A PROP WHICH IS BRINGING IN ALL OF THE MEALS DATA, SINCE WE MAP THE LOADED MEAL IN THE MEALS COMPONENT
@@ -15,7 +16,7 @@ export default function MealItem({ meal }) {
           <p className="meal-item-description">{meal.description}</p>
         </div>
         <p className="meal-item-actions">
-          <button>Add to Cart</button>
+          <Button>Add to Cart</Button>
         </p>
       </article>
     </li>
