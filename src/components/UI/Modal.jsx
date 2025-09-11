@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 // BUILDING A FLEXIBLE MODAL WRAPPER COMPONENT THAT ACCEPTS CHILDREN SO ITS CONTENT IS CUSTOMIZABLE AND REUSABLE - THE MODAL USES A PORTAL TO DISPLAY A DIALOG WITH THE CONTENT PROVIDED AS CHILDREN WHERE IT IS USED
 
 // adding className as an accepted prop on Modal incase we want to use classes on it where it's applied, but providing it with a default value of an empty string so it's not adding undefined if a className isn't used where it's called
-export default function Modal({ children, open, className = "" }) {
+export default function Modal({ children, open, className = "", onClose }) {
   //USE A REF TO REFERENCE THE MODAL (DIALOG HTML)
   const dialog = useRef();
 
@@ -23,7 +23,7 @@ export default function Modal({ children, open, className = "" }) {
   }, [open]);
 
   return createPortal(
-    <dialog ref={dialog} className={`modal ${className}`}>
+    <dialog ref={dialog} className={`modal ${className}`} onClose={onClose}>
       {children}
     </dialog>,
     document.getElementById("modal")
