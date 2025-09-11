@@ -42,7 +42,7 @@ function cartReducer(state, action) {
   if (action.type === "REMOVE_ITEM") {
     // SAME APPROACH FOR GETTING THE CART ITEM INDEX AS ADDING AN ITEM ABOVE - ALLOWS TO EDIT IN IMMUTABLE WAY
     const existingCartItemIndex = state.items.findIndex(
-      (item) => item.id === action.item.id
+      (item) => item.id === action.id
     );
 
     // CREATE A CONSTANT FOR THE CURRENT ITEM
