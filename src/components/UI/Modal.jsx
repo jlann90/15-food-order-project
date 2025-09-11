@@ -10,9 +10,16 @@ export default function Modal({ children, open, className = "" }) {
 
   //USE EFFECT ALLOWS US TO AVOID PLACING OPEN DIRECTLY ON DIALOG, ALLOWING US TO KEEP SOME OF DIALOGS BUILT IN FEATURES - LIKE MAKING THE SCREEN BEHIND IT INACCESIBLE AND GREYED OUT - SO WE USE OPEN AS A DEPENDENCY ON USEEFFECT AND THEN THE BUILT IN SHOWMODAL METHOD WHEN OPEN IS TRUE
   useEffect(() => {
+    // BEST PRACTICE IS TO CREATE A CONSTANT FOR THIS DIALOG REF
+    const modal = dialog.current;
+
+    // OPENS THE MODAL IF OPEN IS TRUE
     if (open) {
-      dialog.current.showModal();
+      modal.showModal();
     }
+
+    //CLEANUP FUNCTION TO CLOSE THE MODAL WHEN OPEN CHANGES (TO FALSE)
+    return () => modal.close();
   }, [open]);
 
   return createPortal(
