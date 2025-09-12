@@ -19,12 +19,30 @@ export default function Checkout() {
     userProgressCtx.hideCheckout();
   }
 
+  function handleSubmit(event) {
+    event.preventDefault();
+
+    // TARGETS THE ENTERED FORM DATA AND CREATES A FORMDATA OBJECT
+    const fd = new FormData(event.target);
+    // CONVERTS RECEIVED FORM DATA OBJECT INTO MORE READABLE FORMAT, EX {email: test@example.com}
+    const customerData = Object.fromEntries(fd.entries());
+
+    // CREATE A POST API REQUEST TO OUR BACKEND TO SEND ORDER DETAILS FROM CART CONTEXT AND FORM DETAILS
+    fetch("http://localhost:3000/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        order: { items: cartCtx.items, customer: customerData },
+      }),
+    });
+  }
+
   return (
     <Modal open={userProgressCtx.progress === "checkout"} onClose={handleClose}>
-      <form>
+      <form onSubmit={handleSubmit}>
         <h2>Checkout</h2>
         <p>Total Amount: {currencyFormatter.format(cartTotal)}</p>
-        <Input label="Full Name" type="text" id="full-name" />
+        <Input label="Full Name" type="text" id="name" />
         <Input label="E-mail Address" type="email" id="email" />
         <Input label="Street Address" type="text" id="street" />
         <div className="control-row">
