@@ -5,6 +5,7 @@ const CartContext = createContext({
   items: [],
   addItem: (item) => {},
   removeItem: (id) => {},
+  clearCart: () => {},
 });
 
 // CREATE OUR REDUCER FOR STATE MANAGEMENT
@@ -67,6 +68,10 @@ function cartReducer(state, action) {
     return { ...state, items: updatedItems };
   }
 
+  if (action.type === "CLEAR_CART") {
+    return { ...state, items: [] };
+  }
+
   return state;
 }
 
@@ -84,11 +89,16 @@ export function CartContextProvider({ children }) {
     dispatchCartAction({ type: "REMOVE_ITEM", id });
   }
 
+  function clearCart() {
+    dispatchCartAction({ type: "CLEAR_CART" });
+  }
+
   // CREATE THE CONTEXT TO PASS INTO THE PROVIDER BELOW
   const cartContext = {
     items: cart.items,
     addItem,
     removeItem,
+    clearCart,
   };
 
   console.log(cartContext);

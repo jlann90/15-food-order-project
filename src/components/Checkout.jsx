@@ -6,10 +6,24 @@ import { currencyFormatter } from "../util/formatting";
 import Input from "./UI/Input.jsx";
 import Button from "./UI/Button.jsx";
 import UserProgressContext from "../store/UserProgressContext.jsx";
+import useHttp from "../hooks/useHttp.js";
+import Error from "./Error.jsx";
+
+const requestConfig = {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+};
 
 export default function Checkout() {
   const cartCtx = useContext(CartContext);
   const userProgressCtx = useContext(UserProgressContext);
+
+  const {
+    data,
+    isLoading: isSending,
+    error,
+    sendRequest,
+  } = useHttp("http://localhost:3000/orders", requestConfig);
 
   const cartTotal = cartCtx.items.reduce((totalPrice, item) => {
     return totalPrice + item.quantity * item.price;
@@ -17,6 +31,12 @@ export default function Checkout() {
 
   function handleClose() {
     userProgressCtx.hideCheckout();
+  }
+
+  function handleFinish() {
+    userProgressCtx.hideCheckout();
+    cartCtx.clearCart();
+    clearData();
   }
 
   function handleSubmit(event) {
@@ -27,14 +47,54 @@ export default function Checkout() {
     // CONVERTS RECEIVED FORM DATA OBJECT INTO MORE READABLE FORMAT, EX {email: test@example.com}
     const customerData = Object.fromEntries(fd.entries());
 
-    // CREATE A POST API REQUEST TO OUR BACKEND TO SEND ORDER DETAILS FROM CART CONTEXT AND FORM DETAILS
-    fetch("http://localhost:3000/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    sendRequest(
+      JSON.stringify({
         order: { items: cartCtx.items, customer: customerData },
-      }),
-    });
+      })
+    );
+
+    // ORIGINAL API CALL BEFORE WE USED CUSTOM HOOK
+    // CREATE A POST API REQUEST TO OUR BACKEND TO SEND ORDER DETAILS FROM CART CONTEXT AND FORM DETAILS
+    // fetch("http://localhost:3000/orders", {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify({
+    //     order: { items: cartCtx.items, customer: customerData },
+    //   }),
+    // });
+  }
+
+  let actions = (
+    <>
+      <Button type="button" textOnly onClick={handleClose}>
+        Close
+      </Button>
+      <Button>Submit Order</Button>
+    </>
+  );
+
+  // HANDLES LOADING STATE WHICH WE RENAMED WITH AN ALIAS ISSENDING
+  if (isSending) {
+    actions = <span>Sending order data...</span>;
+  }
+
+  if (data && !error) {
+    return (
+      <Modal
+        open={userProgressCtx.progress === "checkout"}
+        onClose={handleFinish}
+      >
+        <h2>Success!</h2>
+        <p>Your order was submitted successfully.</p>
+        <p>
+          We will get back to you with more details via email within the next
+          few minutes.
+        </p>
+        <p className="modal-actions">
+          <Button onClick={handleFinish}>Okay</Button>
+        </p>
+      </Modal>
+    );
   }
 
   return (
@@ -49,12 +109,9 @@ export default function Checkout() {
           <Input label="Postal Code" type="text" id="postal-code" />
           <Input label="City" type="text" id="city" />
         </div>
-        <p className="modal-actions">
-          <Button type="button" textOnly onClick={handleClose}>
-            Close
-          </Button>
-          <Button>Submit Order</Button>
-        </p>
+
+        {error && <Error title="Failed to submit order" message={error} />}
+        <p className="modal-actions">{actions}</p>
       </form>
     </Modal>
   );
